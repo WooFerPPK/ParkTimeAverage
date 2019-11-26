@@ -2,7 +2,11 @@ const debug = require('debug')('app:controller:WaitTimeDataManager');
 const MongoDbController = require('./MongoDB');
 
 function WaitTimeDataManager() {
-    const { insert } = MongoDbController();
+    const { insert, get } = MongoDbController();
+
+    /**
+     * Take the current themepark time data, get the current date and insert the data into our DB.
+     */
     function insertTimes(req, res) {
         const rides = req.body.rides;
         if (rides) {
@@ -20,8 +24,17 @@ function WaitTimeDataManager() {
         }
     }
 
+    /**
+     * Get all the collected park time data from our DB
+     */
+    function getAllCollectedTimes(req, res) {
+        const collectionName = req.params.parkName;
+        get(req, res, collectionName);
+    }
+
     return {
-        insertTimes
+        insertTimes,
+        getAllCollectedTimes
     }
 }
 

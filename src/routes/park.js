@@ -7,11 +7,16 @@ const park = express.Router();
 
 function router() {
     const { getModifiedWaitTimes } = ThemeParkContentController();
-    const { insertTimes } = WaitTimeDataManagerController();
+    const { insertTimes, getAllCollectedTimes } = WaitTimeDataManagerController();
     /**
      * Get the park ride time list from the Themepark api.
      */
     park.route('/:parkName').get(getModifiedWaitTimes);
+
+    /**
+     * Get all the collected park times from our local DB.
+     */
+    park.route('/:parkName/collection').get(getAllCollectedTimes);
 
     /**
      * Insert into a seperate DB the times and the date inserted. Used for the average times.
