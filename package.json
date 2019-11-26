@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "set DEBUG=app,app:* && nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,8 @@
     "mongodb": "^3.3.2",
     "morgan": "^1.9.1",
     "nodemon": "^1.19.2",
-    "themeparks": "^5.1.17"
+    "themeparks": "^5.1.29",
+    "vue": "^2.6.10"
   },
   "nodemonConfig": {
     "restartable": "rs",
@@ -27,5 +29,11 @@
       "NODE_ENV": "development",
       "PORT": 4500
     }
+  },
+  "devDependencies": {
+    "vue-loader": "^15.7.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   }
 }
