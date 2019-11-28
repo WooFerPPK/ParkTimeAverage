@@ -13,6 +13,9 @@ app.use(morgan('tiny'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// Park time API route.
+app.use('/park', parkRouter);
+
 // Static Dist Folder
 app.use(express.static(path.join(__dirname, '/dist')));
 
@@ -21,8 +24,6 @@ app.use('/', (req, res) => {
     res.sendFile(path.join(__dirname+'/index.html'));
 });
 
-// Park time API route.
-app.use('/park', parkRouter);
 
 app.listen(port, () => {
     debug(`Listening on port ${port}`);

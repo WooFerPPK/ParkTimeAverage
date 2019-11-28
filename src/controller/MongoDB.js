@@ -6,34 +6,49 @@ function MongoDB() {
     /*
      * Perform the DB insert command
      */
-    function insert(req, res, collectionName) {
-        connectWithCommand('insert', req, res, collectionName);
+    function insertTime(req, res, collectionName) {
+        return new Promise((resolve, reject) => {
+            const options = {
+                command: 'insert', 
+                req, 
+                res, 
+                collectionName, 
+                resolve, 
+                reject
+            }
+            connectWithCommand(options);
+        });
     }
 
     /*
      * Perform the DB get command
      */
-    function get(req, res, collectionName) {
-        connectWithCommand('get', req, res, collectionName);
+    function getTime(req, res, collectionName) {
+        return new Promise((resolve, reject)=>{ 
+            const options = {
+                command: 'get', 
+                req, 
+                res, 
+                collectionName, 
+                resolve, 
+                reject
+            }
+            connectWithCommand(options);
+        })
     }
 
     /*
      * Establish a connection and perform the command to the DB
      */
-    function connectWithCommand(command, req, res, collectionName) {
-        try {
+    function connectWithCommand(options) {
+        try { 
             MongoClient.connect(DB_URL, { useNewUrlParser: true, useUnifiedTopology: true }, function (err, client) {
-                connected({
-                    req,
-                    res,
-                    client,
-                    collectionName,
-                    command
-                })
+                options.client = client;
+                connected(options);
             });
         } catch (error) {
             debug(error.stack);
-            res.status(500).json({ error: xhr.stack });
+            options.reject({ error: xhr.stack })
         }
     }
 
@@ -65,11 +80,11 @@ function MongoDB() {
     function insertData(options) {
         options.col.insertOne(options.req.body.data).then(
             (response) => {
-                options.res.json(response);
+                options.resolve(response);
             },
             (xhr) => {
                 debug(xhr);
-                res.status(500).json(xhr);
+                options.reject(xhr);
             }
         );
     }
@@ -81,15 +96,15 @@ function MongoDB() {
         options.col.find({}).toArray((error, result) => {
             if (error) {
                 debug(error);
-                res.status(500).json(error);
+                options.reject(result);
             };
-            options.res.json(result);
+            options.resolve(result);
           });
     } 
 
     return {
-        insert,
-        get
+        insertTime,
+        getTime
     }
 }
 
