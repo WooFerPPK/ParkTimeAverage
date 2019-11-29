@@ -32,17 +32,59 @@ function WaitTimeDataManager() {
         getTime(req, res, collectionName).then((result) => res.json(result), (xhr) => res.status(500).json(xhr));
     }
 
+    function getTimesAndInsert(req, res) {
+        const ThemeParkContentController = require('../controller/ThemeParkContent');
+        const { returnModifiedWaitTimes } = ThemeParkContentController();
+        returnModifiedWaitTimes(req, res).then((response)=>{
+            req.body.rides = JSON.stringify(response);
+            insertTimes(req, res);
+        });
+    }
+
     function getCollectionAverage(req, res) {
+        // TODO: move out
         const collectionName = req.params.parkName;
         getTime(req, res, collectionName).then((result) => {
+            let rides = [];
+            result.forEach((parkDate) => {
+                parkDate.rides.forEach((ride) => {
+                    let foundIndex = null;
 
+                    // We need to check if the rides array contains an exisiting ride (so we dont duplicate)
+                    const foundRide = rides.find((collection, index ) => {
+                        if (collection.name === ride.name) {
+                            foundIndex = index; //If found, keep the index on hand so we can use it later
+                            return true;
+                        }
+                    });
+
+                    // If the ride is found, add the time to an array.
+                    if (foundRide) {
+                        rides[foundIndex].waitTime.push(ride.waitTime);
+                    } else {
+                        // If no ride is found create a new one and populate it with data.
+                        rides.push({
+                            name: ride.name,
+                            waitTime: [ride.waitTime]
+                        });
+                    }
+                })
+            });
+
+            // Once done generating the rides array list, go through each ride and reduce the array to the average time of each ride.
+            for (const ride in rides) {
+                rides[ride].waitTime = Math.floor(rides[ride].waitTime.reduce((a,b) => a + b, 0) / rides[ride].waitTime.length)
+            };
+
+            res.json(rides);
         });
     }
 
     return {
         insertTimes,
         getAllCollectedTimes,
-        getCollectionAverage
+        getCollectionAverage,
+        getTimesAndInsert
     }
 }
 
