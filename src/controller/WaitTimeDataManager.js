@@ -35,6 +35,7 @@ function WaitTimeDataManager() {
     function getTimesAndInsert(req, res) {
         const ThemeParkContentController = require('../controller/ThemeParkContent');
         const { returnModifiedWaitTimes } = ThemeParkContentController();
+        
         returnModifiedWaitTimes(req, res).then((response)=>{
             req.body.rides = JSON.stringify(response);
             insertTimes(req, res);
@@ -42,10 +43,18 @@ function WaitTimeDataManager() {
     }
 
     function getCollectionAverage(req, res) {
-        // TODO: move out
         const collectionName = req.params.parkName;
         getTime(req, res, collectionName).then((result) => {
+            let rides = organizeRideWaitTimes(result);
+
+            // Once done generating the rides array list, go through each ride and reduce the array to the average time of each ride.
+            rides = calculateAverageWaitTimes(rides);
+            res.json(rides);
+        });
+
+        function organizeRideWaitTimes(result) {
             let rides = [];
+
             result.forEach((parkDate) => {
                 parkDate.rides.forEach((ride) => {
                     let foundIndex = null;
@@ -68,16 +77,18 @@ function WaitTimeDataManager() {
                             waitTime: [ride.waitTime]
                         });
                     }
-                })
+                });
             });
 
-            // Once done generating the rides array list, go through each ride and reduce the array to the average time of each ride.
+            return rides;
+        }
+
+        function calculateAverageWaitTimes(rides) {
             for (const ride in rides) {
                 rides[ride].waitTime = Math.floor(rides[ride].waitTime.reduce((a,b) => a + b, 0) / rides[ride].waitTime.length)
             };
-
-            res.json(rides);
-        });
+            return rides;
+        }
     }
 
     return {
