@@ -25,13 +25,14 @@ function ThemeParkContent() {
 
     function showOnlyNamesAndTimes(rides) {
         const reducedRideList = [];
-
         for (let i = 0; i < rides.length; i++) {
             const ride = rides[i];
-            reducedRideList.push({
-                name: ride.name,
-                waitTime: ride.waitTime
-            })
+            if (ride.waitTime != null && ride.active === true) {
+                reducedRideList.push({
+                    name: ride.name,
+                    waitTime: ride.waitTime
+                });
+            }
         }
 
         return reducedRideList;
